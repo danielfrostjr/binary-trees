@@ -1,0 +1,267 @@
+
+class Link (object):
+  ...
+
+class LinkedList (object):
+  root = None
+  # get number of links 
+  def get_num_links (self):
+    current = self.root
+    # empty list
+    if current == None:
+      return 0
+    else:
+      count = 0
+      while(current != None):
+        current = current.next
+        count += 1
+      return count
+  # add an item at the beginning of the list
+  def insert_first (self, data):
+    current = self.root
+    link = Link()
+    link.data = data
+    link.next = current
+    self.root = link
+
+  # add an item at the end of a list
+  def insert_last (self, data):
+    current = self.root
+    link = Link()
+    link.data = data
+    link.next = None
+    if current == None:
+      self.root = link
+    else:
+      while(current.next != None):
+        current = current.next
+      current.next = link
+
+  # add an item in an ordered list in ascending order
+  def insert_in_order (self, data):
+    current = self.root
+    link = Link()
+    link.data = data
+    if current == None:
+      self.root = link
+    else:
+      while(current.next.data < data):
+        current = current.next
+      link.next = current.next
+      current.next = link
+
+  # search in an unordered list, return None if not found
+  def find_unordered (self, data):
+    current = self.root
+    while(current != None):
+      if current.data == data:
+        return current
+      current = current.next
+    return None
+
+  # Search in an ordered list, return None if not found
+  def find_ordered (self, data):
+    current = self.root
+    while(current != None):
+      if current.data == data:
+        return current
+      elif current.data > data:
+        return None
+      current = current.next
+    return None
+
+  # Delete and return Link from an unordered list or None if not found
+  def delete_link (self, data):
+    current = self.root
+    previous = current
+    if current == None:
+      return None
+    while(current != None):
+##      if current.next.data == data:
+##        link = current.next
+##        current.next = current.next.next
+##        return link
+##    return None
+      if current.data == data:
+        previous.next = current.next
+        return current
+      previous = current
+      current = current.next
+      
+    return None
+
+  # String representation of data 10 items to a line, 2 spaces between data
+  def __str__ (self):
+    text = ""
+    count = 0
+    current = self.root
+    while(current != None):
+      count += 1
+      if count % 10 == 0:
+        text += str(current.data) + "\n"
+      else:
+        text += str(current.data) + "  "
+      current = current.next
+    return text
+
+  # Copy the contents of a list and return new list
+
+  def copy_list (self):
+    # this is complex because of the possible next and next.next values
+    new_list = LinkedList()
+    current = self.root
+    new_list.root = current
+    new_list.root = Link()
+    new_list.root.data = current.data
+    new_list.root.next = current.next
+    new_current = current
+    while(current != None):
+      if current.next == None:
+        next_current = None
+      else:
+        next_current = Link()
+        next_current.data = current.next.data
+        if current.next.next != None:
+          next_current.next = current.next.next
+        else:
+          next_current.next = None
+      new_current.next = next_current
+      current = current.next
+      new_current = new_current.next
+    return new_list
+
+  # Reverse the contents of a list and return new list
+  def reverse_list (self):
+    new_list = LinkedList()
+    current = self.root
+    new_current = Link()
+    new_current.data = current.data
+    new_current.next = None
+    previous = None
+    while(current != None):
+      new_current = Link()
+      new_current.data = current.data
+      new_current.next = previous
+      if current.next == None:
+        previous2 = previous
+      previous = new_current
+      current = current.next
+      new_current = current
+    new_list.root = previous
+    previous.next = previous2
+      
+    
+    return new_list
+
+  # Sort the contents of a list in ascending order and return new list
+  def sort_list (self): 
+    data_list = []
+    current = self.root
+    new_current = current
+    while(current != None):
+      data_list.append(current.data)
+      current = current.next
+    data_list.sort()
+    current = Link()
+    current.next = None
+    current.data = data_list[0]
+    new_list = LinkedList()
+    new_list.root = current
+    for data in data_list[1:]:
+      new_list.insert_last(data)
+    return new_list
+  # Return True if a list is sorted in ascending order or False otherwise
+  def is_sorted (self):
+    current = self.root
+    prev_data = current.data
+    while(current != None):
+      current = current.next
+      if current == None:
+        return True
+      if current.data < prev_data:
+        return False
+      prev_data = current.data
+      
+      
+    return True
+
+  # Return True if a list is empty or False otherwise
+  def is_empty (self):
+    if self.root == None:
+      return True
+    else:
+      return False
+
+  # Merge two sorted lists and return new list in ascending order
+  def merge_list (self, other):
+    new_list = LinkedList()
+    current = self.root
+    other_current = other.root
+    new_list.root = Link()
+    if current.data < other_current.data:
+      new_list.root.data = current.data
+      new_list.root.next = current.next
+      current = current.next
+    else:
+      new_list.root.data = other_current.data
+      new_list.root.next = other_current.next
+      other_current = other_current.next
+    new_current = new_list.root
+    while(current != None or other_current != None):
+      
+      if other_current != None and (current == None  \
+         or other_current.data < current.data):
+        new_next = Link()
+        new_next.data = other_current.data
+        new_next.next = None
+        new_current.next = new_next
+        new_current = new_next
+        other_current = other_current.next
+      else:
+        new_next = Link()
+        new_next.data = current.data
+        new_next.next = None
+        new_current.next = new_next
+        new_current = new_next
+        current = current.next
+    new_current.next = None
+    return new_list
+
+  # Test if two lists are equal, item by item and return True
+  def is_equal (self, other):
+    current = self.root
+    other_current = other.root
+    while(current != None and other_current != None):
+      if current.data != other_current.data:
+        return False
+      current = current.next
+      other_current = other_current.next
+    # after self is exhausted, there may still be elements in other
+    if other_current != None or current != None:
+      return False
+    return True
+
+  # Return a new list, keeping only the first occurence of an element
+  # and removing all duplicates. Do not change the order of the elements.
+  def remove_duplicates (self):
+    # we use a set called duplicates to keep track
+    duplicates = set()
+    current = self.root
+    new_list = LinkedList()
+    new_list.root = Link()
+    new_list.root.data = current.data
+    duplicates.add(current.data)
+    previous = new_list.root
+    if current == None:
+      return None
+    new_current = Link()
+    while(current != None):
+      if current.data not in duplicates:
+        new_current = Link()
+        new_current.data = current.data
+        previous.next = new_current
+        previous = new_current
+        duplicates.add(current.data)
+      current = current.next
+    new_current.next = None
+    return new_list
