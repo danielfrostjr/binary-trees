@@ -1,0 +1,105 @@
+class Stack (object):
+  def __init__(self):
+    self.stack = []
+  def pop(self):
+    return self.stack.pop()
+  def push(self, elem):
+    self.stack.append(elem)
+  def is_empty(self):
+    return len(self.stack) == 0
+  def peek(self):
+    return self.stack[-1]
+
+# a binary tree node
+class Node (object):
+  def __init__(self):
+    self.data = None
+    self.lchild = None
+    self.rchild = None
+    
+# a binary tree object to store and process expressions
+class Tree (object):
+  def __init__ (self):
+    # none is a placeholder, not a node yet
+    self.root = Node()
+    self.current = self.root
+  def create_tree (self, text):
+    # we make a list of tokens, then parse each one
+    tokens = text.split()
+    self.current = self.root
+    self.stack = Stack()
+    self.stack.push(self.current)
+    # examine token, then apply algorithm
+    for token in tokens:
+      if token == "(":
+          node = Node()
+          self.current.lchild = node
+          self.stack.push(self.current)
+          self.current = node
+      # operators
+      elif token in ["+", "-", "*", "/", "//", "%", "**"]:
+        self.current.data = token
+        self.stack.push(self.current)
+        node = Node()
+        self.current.rchild = node
+        self.current = node
+      elif token == ")":
+        if not self.stack.is_empty():
+          self.current = self.stack.pop()
+      # operands
+      else:
+        self.current.data = token
+        self.current = self.stack.pop()
+    print(text, "=", end = " ")
+
+  # evaluate and print tree
+  def evaluate (self, aNode):
+    self.stack = Stack()
+    self.stack2 = Stack()
+    self.pre_order(self.root)
+    pre_list = self.stack.stack
+    # print expression
+    while not self.stack.is_empty():
+      token = self.stack.pop()
+      
+      if token in ["+", "-", "*", "/", "//", "%", "**"]:
+        a = self.stack2.pop()
+        b = self.stack2.pop()
+        # we try the eval to handle errors, and warn the user if they occur
+        try:
+          num = eval(a + token + b)
+        except:
+          print("error", end = " ")
+        self.stack.push(str(num))
+      else:
+        self.stack2.push(token)
+    # print everything out
+    self.stack = Stack()
+    self.pre_order(self.root)
+    print(self.stack2.pop())
+    print("\nPrefix Expression: ", end = "")
+    
+    for num in self.stack.stack:
+      print(num, end = " ")
+    self.stack = Stack()
+    self.post_order(self.root)
+    print("\n\nPostfix Expression: ", end = "")
+    for num in self.stack.stack:
+      print(num, end = " ")
+    
+    
+  # pre-order traversal
+  def pre_order (self, aNode):
+    if aNode == None:
+      return
+    else:
+      self.stack.push(aNode.data)
+      self.pre_order(aNode.lchild)
+      self.pre_order(aNode.rchild)
+
+  def post_order (self, aNode):
+    if aNode == None:
+      return
+    self.post_order(aNode.lchild)
+    self.post_order(aNode.rchild)
+    self.stack.push(aNode.data)
