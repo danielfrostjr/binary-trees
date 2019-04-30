@@ -136,7 +136,7 @@ class Tree (object):
     for num in a_list:
       node = self.insert(num)
       while(node.parent != None):
-        # we rebalance nodes ascending up to te root
+        # we rebalance nodes ascending up to the root
         self.rebalance(node)
         node = node.parent
       self.rebalance(node)
