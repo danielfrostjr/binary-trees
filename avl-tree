@@ -1,0 +1,162 @@
+class Queue:
+  def __init__(self):
+    self.queue = []
+  def push(self, data):
+    self.queue.append(data)
+  def pop(self):
+    return self.queue.pop(0)
+  def peek(self):
+    return self.queue[0]
+  def is_empty(self):
+    return len(self.queue) == 0
+
+class Node (object):
+  def __init__(self, data = None):
+    self.data = data
+    self.lchild = None
+    self.rchild = None
+    self.parent = None
+
+class Tree (object):
+  def __init__ (self):
+    self.root = None
+    
+  def insert (self, num):
+    # modified from professor Shyamal Mitra's code.
+    if self.root == None:
+      self.root = Node(num)
+      return self.root
+    else:
+      node = Node(num)
+      current = self.root
+      parent = self.root
+      while(current != None):
+        parent = current
+        if num < parent.data:
+          current = current.lchild
+        else:
+          current = current.rchild
+
+      if num < parent.data:
+        parent.lchild = node
+      else:
+        parent.rchild = node
+      node.parent = parent
+      return node
+
+  # Returns the height of the tree
+  def get_height (self, aNode):
+    if aNode == None:
+      return -1
+    else:
+      l_height = self.get_height(aNode.lchild)
+      r_height = self.get_height(aNode.rchild)
+      height = 1 + max(l_height, r_height)
+      return height
+
+  # Returns the number of nodes in the left subtree and
+  # the number of nodes in the right subtree and the root
+  def num_nodes (self, aNode):
+    if aNode == None:
+      return 0
+    else:
+      l_nodes = self.num_nodes(aNode.lchild)
+      r_nodes = self.num_nodes(aNode.rchild)
+      nodes = 1 + l_nodes + r_nodes
+      return nodes
+
+  # returns the difference between the height of the left
+  # sub tree and the height of the right sub tree
+  def balance_factor (self, aNode):
+    if aNode == None:
+      return 0
+    else:
+      l_height = self.get_height(aNode.lchild)
+      r_height = self.get_height(aNode.rchild)
+      return l_height - r_height
+
+  # returns True if the tree is balanced and False otherwise
+  # in a balanced tree every node has a balance factor of -1, 0, 1
+  def is_balanced (self, aNode):
+    if aNode == None:
+      return True
+    if self.balance_factor(aNode) not in [-1,0,1]:
+      return False
+    else:
+      l_balanced = self.is_balanced(aNode.lchild)
+      r_balanced = self.is_balanced(aNode.rchild)
+      balanced = l_balanced and r_balanced
+      return balanced
+    
+  def rebalance(self, node):
+    #rebalances at a node through rotations
+    if self.balance_factor(node) == -2:
+      if self.balance_factor(node.rchild) == 1:
+        # double rotation
+        self.rotate_right(node.rchild)
+      self.rotate_left(node)
+    elif self.balance_factor(node) == 2:
+      if self.balance_factor(node.lchild) == -1:
+        #double rotation
+        self.rotate_left(node.lchild)
+      self.rotate_right(node)
+
+  # right rotation about a node
+  def rotate_right(self, node):
+    left_r_child = node.lchild.rchild
+    if (node.parent != None):
+      if node == node.parent.lchild:
+        node.parent.lchild = node.lchild
+      else:
+        node.parent.rchild = node.lchild
+      node.lchild.parent = node.parent
+    else:
+      self.root = node.lchild
+      self.root.parent = None
+    node.lchild.rchild = node
+    node.lchild = left_r_child
+
+  # left rotation about a node
+  def rotate_left(self, node):
+    right_l_child = node.rchild.lchild
+    if (node.parent != None):
+      if node == node.parent.rchild:
+        node.parent.rchild = node.rchild
+      else:
+        node.parent.lchild = node.rchild
+      node.rchild.parent = node.parent
+    else:
+      self.root = node.rchild
+      self.root.parent = None
+    node.rchild.lchild = node
+    node.rchild = right_l_child
+
+  # create a balanced binary search tree from a sorted list
+  def create_tree (self, a_list):
+    for num in a_list:
+      node = self.insert(num)
+      while(node.parent != None):
+        # we rebalance nodes ascending up to te root
+        self.rebalance(node)
+        node = node.parent
+      self.rebalance(node)
+      
+  # prints the nodes breadth first 
+  def print_level (self, aNode):
+    # we assume aNode is the root, and we print 20 numbers to a line
+    queue = Queue()
+    queue.push(aNode)
+    count = 0
+    while not (queue.is_empty()):
+      node = queue.pop()
+      if node.lchild != None:
+        queue.push(node.lchild)
+      if node.rchild != None:
+        queue.push(node.rchild)
+      data = node.data
+      if count % 20 == 0 and count != 0:
+        print(str(data), end = "\n")
+      else:
+        print(str(data), end = " ")
+      count += 1
+    print("\n")
